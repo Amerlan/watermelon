@@ -38,6 +38,7 @@ class CartController extends Controller
 
       if (Promos::where('promo',$request->code)->exists()){
         $disc = Promos::where('promo',$request->code)->first('discount');
+        Promos::delete($distc->id);
         return view('/checkout', ['products'=>$cart->items, 'totalprice' => $cart->totalprice, 'disc'=>$disc->discount]);
       }
       return view('/checkout', ['products'=>$cart->items, 'totalprice' => $cart->totalprice, 'disc'=>0]);
@@ -98,4 +99,5 @@ class CartController extends Controller
         return redirect('home');
 
       }
+
 }

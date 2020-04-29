@@ -11,23 +11,18 @@ class confirmation extends Mailable
 {
     use Queueable, SerializesModels;
 
-    /**
-     * Create a new message instance.
-     *
-     * @return void
-     */
-    public function __construct()
+    public $code;
+    public function __construct($code)
     {
-        //
+        $this->disc = $code;
     }
 
-    /**
-     * Build the message.
-     *
-     * @return $this
-     */
     public function build()
     {
-        return $this->view('view.name');
+      return $this->view('mail')->   // опять смотри папку views/mail файла discount.blade.php
+      with([
+        'promo' => $this->disc,
+      ])
+      ->subject('');
     }
 }

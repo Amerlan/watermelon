@@ -11,8 +11,7 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('roles')->insert([
-          'slug'=>'admin',
+        DB::table('users')->insert([
           'name'=>'Walter Melon',
           'role_id'=>1,
           'email'=>'mail@email.com',

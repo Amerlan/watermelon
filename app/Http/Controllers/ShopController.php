@@ -25,14 +25,20 @@ class ShopController extends Controller
       return view('shop', compact('products'));
   }
 
-  public function getCart()
-  {
-      if (!Session::has('cart')){
-        return view('cart', ['products'=>null]);
-      }
 
-      $oldcart = Session::get('cart');
-      $cart = new cart($oldcart);
-      return view('cart',['products' => $cart->items, 'totalprice' =>$cart->totalprice]);
+  public function populate(Request $req)
+  {
+    $table = new Products;
+    $table->name = $req->name;
+    $table->category = $req->categ;
+    $table->price = $req->price;
+    $table->photo= $req->url;
+    $table->save();
+    return redirect()->back();
+  }
+
+  public function showform()
+  {
+    return view('productinsert');
   }
 }

@@ -15,6 +15,7 @@ class CreateSubsTable extends Migration
     {
         Schema::create('subs', function (Blueprint $table) {
             $table->id();
+            $table->string('email');
             $table->timestamps();
         });
     }

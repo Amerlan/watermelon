@@ -6,10 +6,11 @@
         <span>Get e-mail updates about our latest shops and special offers</span>
       </div>
       <div class="col-md-6 d-flex align-items-center">
-        <form action="#" class="subscribe-form">
+          <form action="{{URL::to('subscribe')}}" class="billing-form" method = 'post'>
+            @csrf
           <div class="form-group d-flex">
-            <input type="text" class="form-control" placeholder="Enter email address">
-            <input type="submit" value="Subscribe" class="submit px-3">
+            <input type="text" name = 'email' class="form-control" placeholder="Enter email address">
+            <button class="btn btn-primary py-3 px-4"type = 'submit'>Subscribe</button>
           </div>
         </form>
       </div>
