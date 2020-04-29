@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 use App\Cart;
 use App\Products;
 use Session;
+use App\User;
 use App\Promos;
 use App\Orders;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 class CartController extends Controller
@@ -17,6 +19,7 @@ class CartController extends Controller
 
     public function index()
     {
+
       if (!Session::has('cart')){
       return view('/cart', ['products'=>null]);
       }
@@ -30,18 +33,30 @@ class CartController extends Controller
     public function promo(Request $request)
     {
       if (!Session::has('cart')){
-      return view('/cart', ['products'=>null]);
+        return redirect('/shop');
       }
 
       $oldcart = Session::get('cart');
       $cart = new cart($oldcart);
 
-      if (Promos::where('promo',$request->code)->exists()){
+      if (Promos::where(['promo' =>$request->code, 'status' => 1])->exists()){
         $disc = Promos::where('promo',$request->code)->first('discount');
-        Promos::delete($distc->id);
-        return view('/checkout', ['products'=>$cart->items, 'totalprice' => $cart->totalprice, 'disc'=>$disc->discount]);
+
+        return view('/checkout', ['products'=>$cart->items, 'totalprice' => $cart->totalprice, 'disc'=>$disc->discount, 'promo' => $request->code]);
       }
-      return view('/checkout', ['products'=>$cart->items, 'totalprice' => $cart->totalprice, 'disc'=>0]);
+
+
+      if ((Auth::user()->personal_promo != $request->code) && (User::where(['personal_promo' =>$request->code])->exists())) {
+
+        $disc = 0.05;
+        User::where('personal_promo', $request->code)->increment('cust_invited');
+        return view('/checkout', ['products'=>$cart->items, 'totalprice' => $cart->totalprice, 'disc'=>$disc, 'promo' => '']);
+      }
+
+      $disc = User::where('id', Auth::user()->id)->get('cust_invited')[0]->cust_invited/100;
+      User::where('id', Auth::user()->id)->update(['discount' => $disc]);
+
+      return view('/checkout', ['products'=>$cart->items, 'totalprice' => $cart->totalprice, 'disc'=>$disc, 'promo' => '']);
     }
 
 
@@ -69,32 +84,32 @@ class CartController extends Controller
 
       public function checkout()
       {
-        if (!Session::has('cart')){
-          return view('cart', ['products'=>null]);
-        }
 
         $oldcart = Session::get('cart');
         $cart = new cart($oldcart);
 
-        return view('/checkout',['products' => $cart->items, 'totalprice' =>$cart->totalprice, 'disc' =>0]);
+        $disc = User::where('id', Auth::user()->id)->get('cust_invited')[0]->cust_invited/100;
+        User::where('id', Auth::user()->id)->update(['discount' => $disc]);
+
+        return view('/checkout',['products'=>$cart->items,'totalprice' =>$cart->totalprice, 'disc' =>$disc, 'promo' => '']);
       }
 
       public function to_order(Request $request)
       {
-        if (!Session::has('cart')){
-          return view('cart', ['products'=>null]);
-        }
-
-        $oldcart = Session::get('cart');
-        $cart = new cart($oldcart);
 
         $table = new Orders;
-        $table->name = $request->first;
-        $table->lastname = $request->last;
-        $table->address = $request->address;
-        $table->email = $request->email;
-        $table->bill = $request->bill;
-        $table->save();
+        try {
+          $table->name = $request->first;
+          $table->lastname = $request->last;
+          $table->address = $request->address;
+          $table->email = $request->email;
+          $table->bill = $request->bill;
+          $table->save();
+        } catch (\Exception $e) {
+          return redirect('/cart');
+        }
+
+        Promos::where('promo', $request->promo)->update(['status' => 0]);
         Session::forget('cart');
         return redirect('home');
 

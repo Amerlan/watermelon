@@ -53,6 +53,14 @@
     <div class="collapse navbar-collapse" id="ftco-nav">
       <ul class="navbar-nav ml-auto">
         <li class="nav-item"><a href="/" class="nav-link">Home</a></li>
+        @if(Auth::user())
+        @if(Auth::user()->role_id==1)
+        <li class="nav-item"><a href="/prodadd" class="nav-link">Add</a></li>
+        @endif
+        @if(Auth::user()->role_id==2)
+        <li class="nav-item"><a href="/partner" class="nav-link">Become partner</a></li>
+        @endif
+        @endif
         <li class="nav-item"><a href="/shop" class="nav-link">Shop</a></li>
         <li class="nav-item"><a href="/cart" class="nav-link">Cart</a></li>
         <li class="nav-item"><a href="/checkout" class="nav-link">Checkout</a></li>

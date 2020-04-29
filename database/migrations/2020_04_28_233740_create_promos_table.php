@@ -17,6 +17,7 @@ class CreatePromosTable extends Migration
             $table->id();
             $table->string('promo');
             $table->double('discount');
+            $table->integer('status')->default(1);
             $table->timestamps();
         });
     }

@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 use App\Products;
 use App\Promos;
 use App\Subs;
+use App\User;
 use App\Mail\confirmation;
 use Mail;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -31,7 +33,7 @@ class HomeController extends Controller
 
     $promo = new Promos;
     $promo->promo = $code;
-    $promo->discount = rand(5, 55)/100;
+    $promo->discount = rand(5, 35)/100;
     $promo->save();
 
     try {
@@ -42,7 +44,16 @@ class HomeController extends Controller
     } catch (\Exception $e) {
         return redirect()->back();
     }
-
     return redirect()->back();
+  }
+
+  public function partner()
+  {
+    if (strlen(Auth::user()->personal_promo)<1){
+      User::where('id', Auth::user()->id)->update(['personal_promo' => $this->genpromo()]);
+    }
+    $disc = User::where('id', Auth::user()->id)->get('cust_invited')[0]->cust_invited/100;
+    User::where('id', Auth::user()->id)->update(['discount' => $disc]);
+    return view('/partnership');
   }
 }

@@ -62,8 +62,9 @@
               <hr>
               <p class="d-flex total-price">
                 <span>Total</span>
-                <span>${{$totalprice*(1-$disc)}}</span>
+                <span>${{$totalprice*(1-$disc) + count($products)*2 }}</span>
                 <input type = "hidden" name = "bill" value = {{$totalprice*(1-$disc)}} />
+                <input type = "hidden" name = "promo" value = {{$promo}} />
               </p>
             </div>
           </div>
